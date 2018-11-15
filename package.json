@@ -1,0 +1,24 @@
+{
+  "name": "issue",
+  "version": "1.0.0",
+  "description": "Micro Service Architecture Back-end issue",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gijoona/msa-be-issue.git"
+  },
+  "author": "gijoona",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gijoona/msa-be-issue/issues"
+  },
+  "homepage": "https://github.com/gijoona/msa-be-issue#readme",
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "mongoose": "^5.3.12",
+    "redis": "^2.8.0"
+  }
+}
