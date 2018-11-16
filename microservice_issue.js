@@ -15,7 +15,7 @@ class issue extends require('./server.js') {
     // 서버정보 초기화
     super('issue',
       process.argv[2] ? Number(process.argv[2]) : conf.service.port,
-      ['POST/issue', 'GET/issue', 'PUT/issue', 'DELETE/issue']
+      ['POST/issue', 'GET/issue/list', 'GET/issue/edit', 'PUT/issue', 'DELETE/issue']
     );
 
     // Distributor 접속

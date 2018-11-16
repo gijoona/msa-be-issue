@@ -46,7 +46,26 @@ function register (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 register 로직
-  cb(response);
+  let newIssue = new Issue({
+    title: parameters.title,
+    contents: parameters.contents,
+    solutions: parameters.solutions
+  });
+  newIssue.save(function (err, issueDoc) {
+    if (err) {
+      response.errorcode = 1;
+      response.errormessage = err;
+      cb(response);
+    }
+
+    if(issueDoc) {
+      cb(response);
+    } else {
+      response.errorcode = 1;
+      response.errormessage = 'Save failed';
+      cb(response);
+    }
+  });
 }
 
 function modify (method, pathname, params, cb) {
@@ -58,11 +77,27 @@ function modify (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 modify 로직
-  cb(response);
+  Issue.findByIdAndUpdate(parameters._id, parameters, { new: true })
+    .then(function (issueDoc) {
+      if (issueDoc) {
+        response.results = issueDoc;
+        cb(response);
+      } else {
+        response.errorcode = 1;
+        response.errormessage = 'modify failed';
+        cb(response);
+      }
+    })
+    .catch(function (err) {
+      response.errorcode = 1;
+      response.errormessage = err;
+      cb(response);
+    });
 }
 
 function inquiry (method, pathname, params, cb) {
   let parameters = params.data,
+      searchData = {},
       response = {
         key: params.key,
         errorcode: 0,
@@ -70,7 +105,43 @@ function inquiry (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 inquiry 로직
-  cb(response);
+  if (pathname === '/issue/edit') {
+    searchData.seq = parameters.id;
+    Issue.findOne(searchData, function (err, issueDoc) {
+      if (err) {
+        response.errorcode = 1;
+        response.errormessage = err;
+        cb(response);
+      }
+
+      if (issueDoc) {
+        response.results = issueDoc;
+        cb(response);
+      } else {
+        response.errorcode = 1;
+        response.errormessage = 'no data';
+        cb(response);
+      }
+    });
+  } else {
+    Issue.find(searchData, function (err, issueDoc) {
+      if (err) {
+        response.errorcode = 1;
+        response.errormessage = err;
+        console.error(err);
+        cb(response);
+      }
+
+      if (issueDoc) {
+        response.results = issueDoc;
+        cb(response);
+      } else {
+        response.errorcode = 1;
+        response.errormessage = 'no data';
+        cb(response);
+      }
+    }).sort({inputDt: 'desc'});
+  }
 }
 
 function unregister (method, pathname, params, cb) {
@@ -82,5 +153,20 @@ function unregister (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 unregister 로직
-  cb(response);
+  Issue.findOneAndDelete({ seq: parameters.id }, function (err, result) {
+    if (err) {
+      response.errorcode = 1;
+      response.errormessage = err;
+      cb(response);
+    }
+
+    if (result) {
+      response.results = result;
+      cb(response);
+    } else {
+      response.errorcode = 1;
+      response.erroemessage = 'delete failed';
+      cb(response);
+    }
+  });
 }
