@@ -84,7 +84,7 @@ function modify (method, pathname, params, cb) {
         cb(response);
       } else {
         response.errorcode = 1;
-        response.errormessage = 'modify failed';
+        response.errormessage = 'Modify failed';
         cb(response);
       }
     })
@@ -165,7 +165,7 @@ function unregister (method, pathname, params, cb) {
       cb(response);
     } else {
       response.errorcode = 1;
-      response.erroemessage = 'delete failed';
+      response.erroemessage = 'Delete failed';
       cb(response);
     }
   });
