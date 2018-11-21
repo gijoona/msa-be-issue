@@ -124,7 +124,7 @@ function inquiry (method, pathname, params, cb) {
       }
     });
   } else {
-    Issue.find(searchData, function (err, issueDoc) {
+    Issue.find(searchData, 'title seq inputDt', function (err, issueDoc) {
       if (err) {
         response.errorcode = 1;
         response.errormessage = err;
