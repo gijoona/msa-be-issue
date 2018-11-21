@@ -49,7 +49,8 @@ function register (method, pathname, params, cb) {
   let newIssue = new Issue({
     title: parameters.title,
     contents: parameters.contents,
-    solutions: parameters.solutions
+    solutions: parameters.solutions,
+    tags: parameters.tags
   });
   newIssue.save(function (err, issueDoc) {
     if (err) {

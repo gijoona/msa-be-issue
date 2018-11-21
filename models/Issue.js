@@ -22,6 +22,9 @@ let IssueSchema = new Schema({
   solutions: {
     type: String
   },
+  tags: [{
+    type: String
+  }],
   inputDt: {
     type: Date,
     default: Date.now
