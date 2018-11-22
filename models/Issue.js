@@ -25,6 +25,10 @@ let IssueSchema = new Schema({
   tags: [{
     type: String
   }],
+  state: {
+    type: String,
+    default: 'secondary'
+  },
   inputDt: {
     type: Date,
     default: Date.now

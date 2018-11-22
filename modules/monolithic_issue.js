@@ -50,7 +50,8 @@ function register (method, pathname, params, cb) {
     title: parameters.title,
     contents: parameters.contents,
     solutions: parameters.solutions,
-    tags: parameters.tags
+    tags: parameters.tags,
+    state: parameters.state
   });
   newIssue.save(function (err, issueDoc) {
     if (err) {
@@ -125,7 +126,13 @@ function inquiry (method, pathname, params, cb) {
       }
     });
   } else {
-    Issue.find(searchData, 'title seq inputDt', function (err, issueDoc) {
+    if (parameters.search) {
+      searchData['$or'] = [];
+      searchData['$or'].push({title: {$regex: parameters.search, $options: 'i'}});
+      searchData['$or'].push({contents: {$regex: parameters.search, $options: 'i'}});
+      searchData['$or'].push({solutions: {$regex: parameters.search, $options: 'i'}});
+    }
+    Issue.find(searchData, 'title seq state inputDt', function (err, issueDoc) {
       if (err) {
         response.errorcode = 1;
         response.errormessage = err;
