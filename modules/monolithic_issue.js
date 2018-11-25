@@ -3,7 +3,7 @@ const conf = require('../conf/config').setting,
       Issue = require('../models/Issue');
 
 mongoose.Promise = require('bluebird');
-mongoose.connect('mongodb+srv://gijoona:mongodb77@cluster-quester-euzkr.gcp.mongodb.net/quester', { promiseLibrary: require('bluebird') })
+mongoose.connect('mongodb+srv://gijoona:mongodb77@cluster-quester-euzkr.gcp.mongodb.net/quester', { useNewUrlParser: true, promiseLibrary: require('bluebird') })
         .then(() => console.log('connection successful!!!'))
         .catch((err) => console.error(err));
 
