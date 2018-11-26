@@ -22,6 +22,10 @@ let IssueSchema = new Schema({
   solutions: {
     type: String
   },
+  isAnswer: {
+    type: Boolean,
+    default: false
+  },
   tags: [{
     type: String
   }],
