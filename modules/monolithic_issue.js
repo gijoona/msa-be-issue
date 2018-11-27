@@ -79,6 +79,7 @@ function modify (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 modify 로직
+  parameters.isAnswer = (parameters.solutions || '') == '' ? false : true;
   Issue.findByIdAndUpdate(parameters._id, parameters, { new: true })
     .then(function (issueDoc) {
       if (issueDoc) {
@@ -132,7 +133,7 @@ function inquiry (method, pathname, params, cb) {
       searchData['$or'].push({contents: {$regex: parameters.search, $options: 'i'}});
       searchData['$or'].push({solutions: {$regex: parameters.search, $options: 'i'}});
     }
-    Issue.find(searchData, 'title seq state inputDt', function (err, issueDoc) {
+    Issue.find(searchData, 'title seq state isAnswer inputDt', function (err, issueDoc) {
       if (err) {
         response.errorcode = 1;
         response.errormessage = err;
