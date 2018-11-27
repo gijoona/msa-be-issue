@@ -108,7 +108,26 @@ function inquiry (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 inquiry 로직
-  if (pathname === '/issue/edit') {
+  if (pathname === '/issue/hashinfo') {
+    // TODO :: 해시태그 검색 결과가 2번씩 날아가서 오류가 발생하고 있음. 확인필요
+    searchData['$elemMatch'] = { tags: '#' + parameters.hashtag };
+    Issue.find(searchData, function (err, issueDoc) {
+      if (err) {
+        response.errorcode = 1;
+        response.errormessage = err;
+        cb(response);
+      }
+
+      if (issueDoc) {
+        response.results = issueDoc;
+        cb(response);
+      } else {
+        response.errorcode = 1;
+        response.errormessage = 'no data';
+        cb(response);
+      }
+    });
+  } else if (pathname === '/issue/edit') {
     searchData.seq = parameters.id;
     Issue.findOne(searchData, function (err, issueDoc) {
       if (err) {
