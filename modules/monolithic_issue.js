@@ -150,13 +150,16 @@ function inquiry (method, pathname, params, cb) {
         response.errormessage = err;
         console.error(err);
       } else if (issueDoc) {
+        let pageInfo = { total: issueDoc.length };
         response.results = issueDoc;
+        response.pageInfo = pageInfo;
       } else {
         response.errorcode = 1;
         response.errormessage = 'no data';
       }
       cb(response);
-    }).sort({inputDt: 'desc'});
+    })
+    .sort({inputDt: 'desc'})
   }
 }
 
