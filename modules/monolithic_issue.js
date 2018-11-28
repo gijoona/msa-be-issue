@@ -107,8 +107,8 @@ function inquiry (method, pathname, params, cb) {
 
   // TODO :: 실제 inquiry 로직
   if (pathname === '/issue/hashinfo') {
-    searchData['$elemMatch'] = { tags: '#' + parameters.hashtag };
-    Issue.find(searchData, function (err, issueDoc) {
+    searchData.tags = { $elemMatch: { $regex: new RegExp(['^', parameters.hashtag, '$'].join(''), 'i') } };
+    Issue.count(searchData, function (err, issueDoc) {
       if (err) {
         response.errorcode = 1;
         response.errormessage = err;
@@ -139,9 +139,10 @@ function inquiry (method, pathname, params, cb) {
   } else if (pathname === '/issue/list') {
     if (parameters.search) {
       searchData['$or'] = [];
-      searchData['$or'].push({title: {$regex: parameters.search, $options: 'i'}});
-      searchData['$or'].push({contents: {$regex: parameters.search, $options: 'i'}});
-      searchData['$or'].push({solutions: {$regex: parameters.search, $options: 'i'}});
+      searchData['$or'].push({title: { $regex: parameters.search, $options: 'i' }});
+      searchData['$or'].push({contents: { $regex: parameters.search, $options: 'i' }});
+      searchData['$or'].push({solutions: { $regex: parameters.search, $options: 'i' }});
+      searchData['$or'].push({tags: { $elemMatch: { $regex: new RegExp(['^', parameters.search, '$'].join(''), 'i') } }});
     }
     Issue.find(searchData, 'title seq state isAnswer inputDt', function (err, issueDoc) {
       if (err) {
