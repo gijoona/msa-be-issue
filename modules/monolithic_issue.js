@@ -55,12 +55,11 @@ function register (method, pathname, params, cb) {
   });
   newIssue.save(function (err, issueDoc) {
     if (err) {
+      console.error(err);
       response.errorcode = 1;
       response.errormessage = err;
       cb(response);
-    }
-
-    if(issueDoc) {
+    } else if(issueDoc) {
       cb(response);
     } else {
       response.errorcode = 1;
@@ -116,9 +115,7 @@ function inquiry (method, pathname, params, cb) {
         response.errorcode = 1;
         response.errormessage = err;
         cb(response);
-      }
-
-      if (issueDoc) {
+      } else if (issueDoc) {
         response.results = issueDoc;
         cb(response);
       } else {
@@ -134,9 +131,7 @@ function inquiry (method, pathname, params, cb) {
         response.errorcode = 1;
         response.errormessage = err;
         cb(response);
-      }
-
-      if (issueDoc) {
+      } else if (issueDoc) {
         response.results = issueDoc;
         cb(response);
       } else {
@@ -145,7 +140,7 @@ function inquiry (method, pathname, params, cb) {
         cb(response);
       }
     });
-  } else {
+  } else if (pathname === '/issue/list') {
     if (parameters.search) {
       searchData['$or'] = [];
       searchData['$or'].push({title: {$regex: parameters.search, $options: 'i'}});
@@ -158,9 +153,7 @@ function inquiry (method, pathname, params, cb) {
         response.errormessage = err;
         console.error(err);
         cb(response);
-      }
-
-      if (issueDoc) {
+      } else if (issueDoc) {
         response.results = issueDoc;
         cb(response);
       } else {
@@ -186,9 +179,7 @@ function unregister (method, pathname, params, cb) {
       response.errorcode = 1;
       response.errormessage = err;
       cb(response);
-    }
-
-    if (result) {
+    } else if (result) {
       response.results = result;
       cb(response);
     } else {

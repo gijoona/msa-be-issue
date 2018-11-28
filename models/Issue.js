@@ -41,7 +41,7 @@ let IssueSchema = new Schema({
 
 IssueSchema.pre('save', function (next) {
   let doc = this;
-  doc.isAnswer = doc.solutions.length > 0 ? true : false;
+  doc.isAnswer = (doc.solutions || '').length > 0 ? true : false;
   if (this.isNew) {
     sequence.findByIdAndUpdate({_id: 'issueSeq'}, { $inc: { seq: 1 } }, { upsert: true, new: true})
       .then(function (seqDoc) {
