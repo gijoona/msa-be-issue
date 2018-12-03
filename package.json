@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/gijoona/msa-be-issue#readme",
   "dependencies": {
+    "@google/maps": "^0.5.5",
     "bluebird": "^3.5.3",
     "mongoose": "^5.3.12",
     "redis": "^2.8.0"

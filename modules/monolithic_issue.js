@@ -1,6 +1,9 @@
 const conf = require('../conf/config').setting,
       mongoose = require('mongoose'),
-      Issue = require('../models/Issue');
+      Issue = require('../models/Issue'),
+      googleMapsClient = require('@google/maps').createClient({
+        key: 'AIzaSyCozWcBfuKMWt3gonOskO5n2SZMkd269WA'
+      });
 
 mongoose.Promise = require('bluebird');
 mongoose.connect('mongodb+srv://gijoona:mongodb77@cluster-quester-euzkr.gcp.mongodb.net/quester', { useNewUrlParser: true, promiseLibrary: require('bluebird') })
@@ -46,26 +49,66 @@ function register (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 register 로직
-  let newIssue = new Issue({
-    title: parameters.title,
-    contents: parameters.contents,
-    solutions: parameters.solutions,
-    tags: parameters.tags,
-    state: parameters.state
-  });
-  newIssue.save(function (err, issueDoc) {
-    if (err) {
-      console.error(err);
-      response.errorcode = 1;
-      response.errormessage = err;
-    } else if(issueDoc) {
-      response.results = issueDoc;
-    } else {
-      response.errorcode = 1;
-      response.errormessage = 'Save failed';
-    }
-    cb(response);
-  });
+  if (parameters.geoLoc) {
+    googleMapsClient.reverseGeocode({latlng: parameters.geoLoc, language: 'ko', location_type: 'ROOFTOP'}, function (err, res) {
+      // TODO :: result가 없음.
+      // status: 'ZERO_RESULTS'라는 결과가 출력됨. 조회 결과가 없는 이유를 확인해야할 필요가 있음
+      let adress = '';
+      if (res.json.results.length > 0) {
+        adress = res.json.results[0].formatted_address;
+      } else {
+        adress = res.json.plus_code.compound_code;
+      }
+      console.log(adress);
+      let newIssue = new Issue({
+        title: parameters.title,
+        contents: parameters.contents,
+        solutions: parameters.solutions,
+        tags: parameters.tags,
+        state: parameters.state,
+        geoLocation: {
+          type: 'Point',
+          coordinates: parameters.geoLoc,
+          adress: adress
+        }
+      });
+      newIssue.save(function (err, issueDoc) {
+        if (err) {
+          console.error(err);
+          response.errorcode = 1;
+          response.errormessage = err;
+        } else if(issueDoc) {
+          response.results = issueDoc;
+        } else {
+          response.errorcode = 1;
+          response.errormessage = 'Save failed';
+        }
+        cb(response);
+      });
+    });
+  } else {
+    let newIssue = new Issue({
+      title: parameters.title,
+      contents: parameters.contents,
+      solutions: parameters.solutions,
+      tags: parameters.tags,
+      state: parameters.state,
+      geoLocation: null
+    });
+    newIssue.save(function (err, issueDoc) {
+      if (err) {
+        console.error(err);
+        response.errorcode = 1;
+        response.errormessage = err;
+      } else if(issueDoc) {
+        response.results = issueDoc;
+      } else {
+        response.errorcode = 1;
+        response.errormessage = 'Save failed';
+      }
+      cb(response);
+    });
+  }
 }
 
 function modify (method, pathname, params, cb) {

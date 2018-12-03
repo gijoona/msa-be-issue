@@ -7,6 +7,23 @@ let SequenceSchema = new Schema({
 });
 let sequence = mongoose.model('sequence', SequenceSchema);
 
+let GeoSchema = new Schema({
+  _id: false,
+  type: {
+    type: String,
+    enum: ['Point'],
+    required: true
+  },
+  coordinates: {
+    type: [Number],
+    required: true
+  },
+  adress: {
+    type: String,
+    required: true
+  }
+});
+
 let IssueSchema = new Schema({
   seq: {
     type: Number
@@ -36,6 +53,9 @@ let IssueSchema = new Schema({
   inputDt: {
     type: Date,
     default: Date.now
+  },
+  geoLocation: {
+    type: GeoSchema
   }
 });
 
