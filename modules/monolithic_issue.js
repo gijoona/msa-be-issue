@@ -20,19 +20,19 @@ exports.onRequest = function (res, method, pathname, params, cb) {
   switch (method) {
     case 'POST':
       return register(method, pathname, params, (response) => {
-        process.nextTick(cb, res, response);;
+        process.nextTick(cb, res, response);
       });
     case 'GET':
       return inquiry(method, pathname, params, (response) => {
-        process.nextTick(cb, res, response);;
+        process.nextTick(cb, res, response);
       });
     case 'PUT':
       return modify(method, pathname, params, (response) => {
-        process.nextTick(cb, res, response);;
+        process.nextTick(cb, res, response);
       });
     case 'DELETE':
       return unregister(method, pathname, params, (response) => {
-        process.nextTick(cb, res, response);;
+        process.nextTick(cb, res, response);
       });
     default:
       // 정의되지 않은 메서드면 null return
