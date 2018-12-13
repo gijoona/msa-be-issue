@@ -49,7 +49,7 @@ function register (method, pathname, params, cb) {
       };
 
   // TODO :: 실제 register 로직
-  if (parameters.geoLoc) {
+  if (parameters.geoLoc && parameters.geoLoc.length > 0) {
     googleMapsClient.reverseGeocode({latlng: parameters.geoLoc, language: 'ko', location_type: 'ROOFTOP'}, function (err, res) {
       // TODO :: result가 없음.
       // status: 'ZERO_RESULTS'라는 결과가 출력됨. 조회 결과가 없는 이유를 확인해야할 필요가 있음
