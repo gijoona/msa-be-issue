@@ -41,12 +41,7 @@ exports.onRequest = function (res, method, pathname, params, cb) {
 }
 
 function register (method, pathname, params, cb) {
-  let parameters = params.data,
-      response = {
-        key: params.key,
-        errorcode: 0,
-        errormessage: 'success'
-      };
+  let parameters = params.data;
 
   // TODO :: 실제 register 로직
   if (parameters.geoLoc && parameters.geoLoc.length > 0) {
@@ -73,17 +68,7 @@ function register (method, pathname, params, cb) {
         }
       });
       newIssue.save(function (err, issueDoc) {
-        if (err) {
-          console.error(err);
-          response.errorcode = 1;
-          response.errormessage = err;
-        } else if(issueDoc) {
-          response.results = issueDoc;
-        } else {
-          response.errorcode = 1;
-          response.errormessage = 'Save failed';
-        }
-        cb(response);
+        resultProc(err, issueDoc, params, cb);
       });
     });
   } else {
@@ -96,88 +81,35 @@ function register (method, pathname, params, cb) {
       geoLocation: null
     });
     newIssue.save(function (err, issueDoc) {
-      if (err) {
-        console.error(err);
-        response.errorcode = 1;
-        response.errormessage = err;
-      } else if(issueDoc) {
-        response.results = issueDoc;
-      } else {
-        response.errorcode = 1;
-        response.errormessage = 'Save failed';
-      }
-      cb(response);
+      resultProc(err, issueDoc, params, cb);
     });
   }
 }
 
 function modify (method, pathname, params, cb) {
-  let parameters = params.data,
-      response = {
-        key: params.key,
-        errorcode: 0,
-        errormessage: 'success'
-      };
+  let parameters = params.data;
 
   // TODO :: 실제 modify 로직
   parameters.isAnswer = (parameters.solutions || '') == '' ? false : true;
-  Issue.findByIdAndUpdate(parameters._id, parameters, { new: true })
-    .then(function (issueDoc) {
-      if (issueDoc) {
-        response.results = issueDoc;
-      } else {
-        response.errorcode = 1;
-        response.errormessage = 'Modify failed';
-      }
-      cb(response);
-    })
-    .catch(function (err) {
-      response.errorcode = 1;
-      response.errormessage = err;
-      console.error(err);
-      cb(response);
-    });
+  Issue.findByIdAndUpdate(parameters._id, parameters, { new: true }, function (err, issueDoc) {
+    resultProc(err, issueDoc, params, cb);
+  });
 }
 
 function inquiry (method, pathname, params, cb) {
   let parameters = params.data,
-      searchData = {},
-      response = {
-        key: params.key,
-        errorcode: 0,
-        errormessage: 'success'
-      };
+      searchData = {};
 
   // TODO :: 실제 inquiry 로직
   if (pathname === '/issue/hashinfo') {
     searchData.tags = { $elemMatch: { $regex: new RegExp(['^', parameters.hashtag, '$'].join(''), 'i') } };
     Issue.count(searchData, function (err, issueDoc) {
-      if (err) {
-        response.errorcode = 1;
-        response.errormessage = err;
-        console.error(err);
-      } else if (issueDoc) {
-        response.results = issueDoc;
-      } else {
-        response.errorcode = 1;
-        response.errormessage = 'no data';
-      }
-      cb(response);
+      resultProc(err, issueDoc, params, cb);
     });
   } else if (pathname === '/issue/edit') {
     searchData.seq = parameters.id;
     Issue.findOne(searchData, function (err, issueDoc) {
-      if (err) {
-        response.errorcode = 1;
-        response.errormessage = err;
-        console.error(err);
-      } else if (issueDoc) {
-        response.results = issueDoc;
-      } else {
-        response.errorcode = 1;
-        response.errormessage = 'no data';
-      }
-      cb(response);
+      resultProc(err, issueDoc, params, cb);
     });
   } else if (pathname === '/issue/list') {
     if (parameters.search) {
@@ -188,44 +120,51 @@ function inquiry (method, pathname, params, cb) {
       searchData['$or'].push({tags: { $elemMatch: { $regex: new RegExp(['^', parameters.search, '$'].join(''), 'i') } }});
     }
     Issue.find(searchData, 'title seq state isAnswer inputDt', function (err, issueDoc) {
-      if (err) {
-        response.errorcode = 1;
-        response.errormessage = err;
-        console.error(err);
-      } else if (issueDoc) {
-        let pageInfo = { total: issueDoc.length };
-        response.results = issueDoc;
-        response.pageInfo = pageInfo;
-      } else {
-        response.errorcode = 1;
-        response.errormessage = 'no data';
-      }
-      cb(response);
-    })
-    .sort({inputDt: 'desc'})
+      resultProc(err, issueDoc, params, cb);
+    }).sort({inputDt: 'desc'})
   }
 }
 
 function unregister (method, pathname, params, cb) {
-  let parameters = params.data,
-      response = {
-        key: params.key,
-        errorcode: 0,
-        errormessage: 'success'
-      };
+  let parameters = params.data;
 
   // TODO :: 실제 unregister 로직
-  Issue.findOneAndDelete({ seq: parameters.id }, function (err, result) {
-    if (err) {
-      response.errorcode = 1;
-      response.errormessage = err;
-      console.error(err);
-    } else if (result) {
-      response.results = result;
-    } else {
-      response.errorcode = 1;
-      response.erroemessage = 'Delete failed';
-    }
-    cb(response);
+  Issue.findOneAndDelete({ seq: parameters.id }, function (err, issueDoc) {
+    resultProc(err, issueDoc, params, cb);
   });
+}
+
+function resultProc (err, results, params, cb) {
+  let res = {
+    key: params.key,
+    errorcode: 0,
+    errormessage: 'success'
+  };
+  if (err) {
+    fnError(err, res, cb);
+  } else if (results) {
+    fnSuccess(results, res, cb);
+  } else {
+    fnFailed('Failed', res, cb);
+  }
+}
+
+function fnError (err, res, cb) {
+  console.error(err);
+  res.errorcode = 1;
+  res.errormessage = err;
+  cb(res);
+}
+
+function fnSuccess (results, res, cb) {
+  let pageInfo = { total: results.length || 0 };
+  res.pageInfo = pageInfo;
+  res.results = results;
+  cb(res);
+}
+
+function fnFailed (msg, res, cb) {
+  res.errorcode = 1;
+  res.errormessage = msg;
+  cb(res);
 }
